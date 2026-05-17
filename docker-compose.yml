@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgis/postgis:18-3.6-alpine
+    environment:
+      POSTGRES_USER: liftshare
+      POSTGRES_PASSWORD: liftshare
+      POSTGRES_DB: liftshare
+    ports:
+      - "127.0.0.1:5432:5432"
+
