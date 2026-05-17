@@ -4,8 +4,11 @@ use tracing::info;
 
 mod app;
 mod db;
+mod models;
+mod repositories;
 mod routes;
 mod settings;
+mod state;
 
 use settings::SETTINGS;
 

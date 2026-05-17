@@ -1,10 +1,11 @@
 use axum::extract::State;
 use axum::{Json, Router, http::StatusCode, routing::get};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
 use utoipa::ToSchema;
 
-pub fn create_route() -> Router<PgPool> {
+use crate::state::SharedState;
+
+pub fn create_route() -> Router<SharedState> {
     Router::new().route("/health", get(get_health))
 }
 
@@ -21,8 +22,8 @@ pub struct Status {
     ),
     tag = "Liftshare",
 )]
-async fn get_health(State(pool): State<PgPool>) -> (StatusCode, Json<Status>) {
-    let _ = pool;
+async fn get_health(State(state): State<SharedState>) -> (StatusCode, Json<Status>) {
+    let _ = state;
     // insert your application logic here
     let status = Status {
         status: "ok".to_owned(),

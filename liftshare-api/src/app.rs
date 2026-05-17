@@ -1,5 +1,6 @@
 use axum::Router;
 use axum::http::header;
+use std::sync::Arc;
 use tower_http::{
     compression::CompressionLayer, cors::CorsLayer, propagate_header::PropagateHeaderLayer,
     sensitive_headers::SetSensitiveHeadersLayer, trace,
@@ -10,6 +11,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use crate::db;
 use crate::routes;
+use crate::state;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -24,6 +26,10 @@ use crate::routes;
 struct ApiDoc;
 
 pub async fn create_app() -> Router {
+    let shared_state: state::SharedState = Arc::new(state::AppState {
+        db_pool: db::create_pool().await,
+    });
+
     Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .merge(routes::health::create_route())
@@ -47,5 +53,5 @@ pub async fn create_app() -> Router {
         // CORS configuration. This should probably be more restrictive in
         // production.
         .layer(CorsLayer::permissive())
-        .with_state(db::pool().await)
+        .with_state(shared_state)
 }
