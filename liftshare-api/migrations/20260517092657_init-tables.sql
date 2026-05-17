@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS trip_routes (
     trip_id          UUID NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
     step             INTEGER NOT NULL,
 
+    location         TEXT,
     geom         GEOGRAPHY(Point, 4326) NOT NULL,
     route_distance_m REAL,
     route_duration_s REAL,

@@ -17,9 +17,12 @@ use crate::state;
 #[openapi(
     paths(
         routes::health::get_health,
+        routes::trip_handlers::create,
     ),
     components(schemas(
         routes::health::Status,
+        crate::models::trips_api::CreateTripRequest,
+        crate::models::trips_api::CreateTripResponse,
     )),
     tags((name = "Liftshare"))
 )]
@@ -33,6 +36,7 @@ pub async fn create_app() -> Router {
     Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .merge(routes::health::create_route())
+        .merge(routes::trip_handlers::create_route())
         .layer(
             trace::TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().include_headers(true))

@@ -1,2 +1,2 @@
-mod trips_api;
-mod trips_db;
+pub mod trips_api;
+pub mod trips_db;

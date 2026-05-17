@@ -34,7 +34,8 @@ pub struct TripUserRel {
 pub struct TripRoute {
     pub trip_id: Uuid,
     pub step: i32,
-    pub location: wkb::Decode<Geometry<f64>>,
+    pub geom: wkb::Decode<Geometry<f64>>,
+    pub location: Option<String>,
     pub route_distance_m: Option<f32>,
     pub route_duration_s: Option<f32>,
 }

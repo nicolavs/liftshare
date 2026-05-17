@@ -4,6 +4,7 @@ use tracing::info;
 
 mod app;
 mod db;
+mod errors;
 mod models;
 mod repositories;
 mod routes;

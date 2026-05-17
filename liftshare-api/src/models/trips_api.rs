@@ -1,15 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-/*#[derive(Debug, Serialize, Deserialize)]
-pub struct LatLng {
-    pub lat: f64,
-    pub lng: f64,
-}*/
-
 // POST /trip/create
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct CreateTripRequest {
     pub user_id: Uuid,
     pub start_location: String,
@@ -18,7 +13,7 @@ pub struct CreateTripRequest {
     pub car_capacity: i32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct CreateTripResponse {
     pub id: Uuid,
     pub start_location: Option<String>,
@@ -31,7 +26,7 @@ pub struct CreateTripResponse {
 }
 
 // GET /trip/:trip_id
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct TripResponse {
     pub id: Uuid,
     pub user_id: Uuid,
