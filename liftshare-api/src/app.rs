@@ -8,6 +8,7 @@ use tower_http::{
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
+use crate::db;
 use crate::routes;
 
 #[derive(OpenApi)]
@@ -46,4 +47,5 @@ pub async fn create_app() -> Router {
         // CORS configuration. This should probably be more restrictive in
         // production.
         .layer(CorsLayer::permissive())
+        .with_state(db::pool().await)
 }
