@@ -47,7 +47,6 @@ CREATE TABLE IF NOT EXISTS trip_routes (
 
 CREATE INDEX IF NOT EXISTS idx_trip_route_geom ON trip_routes USING GIST (geom);
 
-CREATE INDEX IF NOT EXISTS idx_trips_start_geom      ON trips USING GIST (start_geom);
 CREATE INDEX IF NOT EXISTS idx_trips_end_geom        ON trips USING GIST (end_geom);
 CREATE INDEX IF NOT EXISTS idx_trips_start_time      ON trips (trip_start_time);
 CREATE INDEX IF NOT EXISTS idx_trips_end_time        ON trips (trip_end_time);
