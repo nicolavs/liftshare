@@ -17,12 +17,20 @@ use crate::state;
 #[openapi(
     paths(
         routes::health::get_health,
-        routes::trip_handlers::create,
+        routes::trip_handlers::create_trip,
+        routes::trip_handlers::search_trips,
+        routes::trip_handlers::join_trip,
+        routes::trip_handlers::update_trip,
     ),
     components(schemas(
         routes::health::Status,
         crate::models::trips_api::CreateTripRequest,
         crate::models::trips_api::CreateTripResponse,
+        crate::models::trips_api::SearchTripsResponse,
+        crate::models::trips_api::JoinTripResponse,
+        crate::models::trips_api::JoinTripRequest,
+        crate::models::trips_api::UpdateTripRequest,
+        crate::models::trips_api::UpdateTripResponse,
     )),
     tags((name = "Liftshare"))
 )]

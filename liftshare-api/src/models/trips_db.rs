@@ -9,7 +9,9 @@ pub struct Trip {
     pub user_id: Uuid,
     pub start_location: Option<String>,
     pub end_location: Option<String>,
+    #[allow(dead_code)]
     pub start_geom: wkb::Decode<Geometry<f64>>,
+    #[allow(dead_code)]
     pub end_geom: wkb::Decode<Geometry<f64>>,
     pub trip_start_time: DateTime<Utc>,
     pub trip_end_time: Option<DateTime<Utc>>,
@@ -18,25 +20,6 @@ pub struct Trip {
     pub car_full: bool,
     pub route_distance_m: Option<f32>,
     pub route_duration_s: Option<f32>,
+    #[allow(dead_code)]
     pub created_at: DateTime<Utc>,
-}
-
-#[derive(Debug, FromRow)]
-pub struct TripUserRel {
-    pub trip_id: Uuid,
-    pub user_id: Uuid,
-    pub pickup_location: Option<String>,
-    pub pickup_geom: Option<wkb::Decode<Geometry<f64>>>,
-    pub num_passengers: i32,
-}
-
-#[derive(Debug, FromRow)]
-pub struct TripRoute {
-    pub trip_id: Uuid,
-    pub step: i32,
-    pub geom: wkb::Decode<Geometry<f64>>,
-    pub location: Option<String>,
-    pub route_distance_m: Option<f32>,
-    pub route_duration_s: Option<f32>,
-    pub eta: DateTime<Utc>,
 }

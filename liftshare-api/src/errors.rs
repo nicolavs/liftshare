@@ -7,20 +7,11 @@ use tokio::task::JoinError;
 #[derive(thiserror::Error, Debug)]
 #[error("...")]
 pub enum Error {
-    #[error("Error parsing ObjectID {0}")]
-    ParseObjectID(String),
-
-    #[error("{0}")]
-    Authenticate(#[from] AuthenticateError),
-
     #[error("{0}")]
     BadRequest(#[from] BadRequest),
 
     #[error("{0}")]
     NotFound(#[from] NotFound),
-
-    #[error("{0}")]
-    RunSyncTask(#[from] JoinError),
 
     #[error("External request failed: {0}")]
     External(#[from] reqwest::Error),
@@ -30,31 +21,20 @@ pub enum Error {
 
     #[error("Database error: {0}")]
     Db(#[from] sqlx::Error),
+
+    #[error("Task error: {0}")]
+    RunSyncTask(#[from] JoinError),
 }
 
 impl Error {
     fn get_codes(&self) -> (StatusCode, u16) {
-        match *self {
-            // 4XX Errors
-            Error::ParseObjectID(_) => (StatusCode::BAD_REQUEST, 40001),
+        match self {
             Error::BadRequest(_) => (StatusCode::BAD_REQUEST, 40002),
             Error::NotFound(_) => (StatusCode::NOT_FOUND, 40003),
-            Error::Authenticate(AuthenticateError::WrongCredentials) => {
-                (StatusCode::UNAUTHORIZED, 40004)
-            }
-            Error::Authenticate(AuthenticateError::InvalidToken) => {
-                (StatusCode::UNAUTHORIZED, 40005)
-            }
-            Error::Authenticate(AuthenticateError::Locked) => (StatusCode::LOCKED, 40006),
-
-            // 5XX Errors
-            Error::Authenticate(AuthenticateError::TokenCreation) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, 5001)
-            }
-            Error::RunSyncTask(_) => (StatusCode::INTERNAL_SERVER_ERROR, 5005),
+            Error::GeocodeMiss(_) => (StatusCode::BAD_REQUEST, 40007),
             Error::External(_) => (StatusCode::INTERNAL_SERVER_ERROR, 5006),
             Error::Db(_) => (StatusCode::INTERNAL_SERVER_ERROR, 5007),
-            Error::GeocodeMiss(_) => (StatusCode::BAD_REQUEST, 40007),
+            Error::RunSyncTask(_) => (StatusCode::INTERNAL_SERVER_ERROR, 5005),
         }
     }
 
@@ -75,19 +55,6 @@ impl IntoResponse for Error {
 
         (status_code, body).into_response()
     }
-}
-
-#[derive(thiserror::Error, Debug)]
-#[error("...")]
-pub enum AuthenticateError {
-    #[error("Wrong authentication credentials")]
-    WrongCredentials,
-    #[error("Failed to create authentication token")]
-    TokenCreation,
-    #[error("Invalid authentication credentials")]
-    InvalidToken,
-    #[error("User is locked")]
-    Locked,
 }
 
 #[derive(thiserror::Error, Debug)]
