@@ -38,4 +38,5 @@ pub struct TripRoute {
     pub location: Option<String>,
     pub route_distance_m: Option<f32>,
     pub route_duration_s: Option<f32>,
+    pub eta: DateTime<Utc>,
 }

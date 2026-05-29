@@ -1,5 +1,6 @@
 use crate::errors::Error;
 use crate::models::trips_api::CreateTripRequest;
+use chrono::Duration;
 use serde::Deserialize;
 use sqlx::PgPool;
 
@@ -163,10 +164,12 @@ pub async fn create(pool: &PgPool, req: CreateTripRequest) -> Result<uuid::Uuid,
     .fetch_one(&mut *tx)
     .await?;
 
+    let mut duration_s: f64 = 0.0;
+
     for (step, step_data) in route.steps.iter().enumerate() {
         sqlx::query!(
-            "INSERT INTO trip_routes (trip_id, step, location, geom, route_distance_m, route_duration_s)
-             VALUES ($1, $2, $3, ST_SetSRID(ST_MakePoint($4, $5), 4326), $6, $7)",
+            "INSERT INTO trip_routes (trip_id, step, location, geom, route_distance_m, route_duration_s, eta)
+             VALUES ($1, $2, $3, ST_SetSRID(ST_MakePoint($4, $5), 4326), $6, $7, $8)",
             trip.id,
             step as i32,
             step_data.location,
@@ -174,9 +177,12 @@ pub async fn create(pool: &PgPool, req: CreateTripRequest) -> Result<uuid::Uuid,
             step_data.lat,
             step_data.distance_m as f64,
             step_data.duration_s as f64,
+            req.trip_start_time + Duration::milliseconds((duration_s * 1000.0) as i64)
         )
         .execute(&mut *tx)
         .await?;
+
+        duration_s += step_data.duration_s as f64;
     }
 
     tx.commit().await?;

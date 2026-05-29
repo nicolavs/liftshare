@@ -1,11 +1,6 @@
 use crate::{models::trips_api, repositories::trip_repo, state::SharedState};
 use axum::routing::post;
-use axum::{
-    Json, Router,
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse,
-};
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse};
 
 use crate::errors::Error;
 
