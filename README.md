@@ -20,17 +20,17 @@ cargo run
 
 ## Tech Stack
 
-| Layer | Choice |
-|---|---|
-| Web framework | axum 0.8 |
+| Layer | Choice                                          |
+|---|-------------------------------------------------|
+| Web framework | axum 0.8                                        |
 | DB driver | sqlx (PostgreSQL, compile-time checked queries) |
-| DB | PostgreSQL 16 + PostGIS 3 (docker-compose) |
-| Routing | OSRM (public demo endpoint) |
-| Geocoding | Nominatim / OpenStreetMap (public endpoint) |
-| Serialization | serde / serde_json |
-| Async runtime | tokio |
-| Config | env vars + dotenvy (`.env` in dev) |
-| Docs | utoipa (OpenAPI) |
+| DB | PostgreSQL 18 + PostGIS 3 (docker-compose)      |
+| Routing | OSRM (public demo endpoint)                     |
+| Geocoding | Nominatim / OpenStreetMap (public endpoint)     |
+| Serialization | serde / serde_json                              |
+| Async runtime | tokio                                           |
+| Config | env vars + dotenvy (`.env` in dev)              |
+| Docs | utoipa (OpenAPI)                                |
 
 ## API Routes
 
