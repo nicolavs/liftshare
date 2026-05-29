@@ -282,7 +282,7 @@ pub async fn search(pool: &PgPool, req: SearchTripsQuery) -> Result<Vec<Trip>, E
         near_pickup_ids AS (
             SELECT DISTINCT t.id
             FROM ongoing t
-            JOIN trip_routes tr ON tr.trip_id = t.id
+            INNER JOIN trip_routes tr ON tr.trip_id = t.id
             WHERE tr.eta >= $1
               AND ST_Distance(
                     tr.geom,
