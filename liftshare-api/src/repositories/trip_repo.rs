@@ -1,6 +1,6 @@
 use crate::errors::Error;
 use crate::models::trips_api::{
-    CreateTripRequest, JoinTripRequest, SearchTripsQuery, UpdateTripRequest,
+    CreateTripRequest, JoinTripRequest, LatLng, SearchTripsQuery, UpdateTripRequest,
 };
 use crate::models::trips_db::Trip;
 use chrono::{DateTime, Duration, Utc};
@@ -197,7 +197,7 @@ pub async fn create(pool: &PgPool, req: CreateTripRequest) -> Result<uuid::Uuid,
     Ok(trip.id)
 }
 
-pub async fn join(pool: &PgPool, req: JoinTripRequest) -> Result<DateTime<Utc>, Error> {
+pub async fn join(pool: &PgPool, req: JoinTripRequest) -> Result<(DateTime<Utc>, LatLng), Error> {
     let (start_lat, start_lng) = geocode(&req.pickup_location).await?;
 
     let mut tx = pool.begin().await?;
@@ -240,9 +240,11 @@ pub async fn join(pool: &PgPool, req: JoinTripRequest) -> Result<DateTime<Utc>, 
 
     tx.commit().await?;
 
-    let eta = sqlx::query!(
+    let row = sqlx::query!(
         r#"
-        SELECT eta
+        SELECT eta,
+               ST_Y(geom::geometry) AS "lat!: f64",
+               ST_X(geom::geometry) AS "lng!: f64"
         FROM trip_routes
         WHERE trip_id = $1
           AND ST_Distance(
@@ -261,10 +263,15 @@ pub async fn join(pool: &PgPool, req: JoinTripRequest) -> Result<DateTime<Utc>, 
         PICKUP_RADIUS_M
     )
     .fetch_one(pool)
-    .await?
-    .eta;
+    .await?;
 
-    Ok(eta)
+    Ok((
+        row.eta,
+        LatLng {
+            lat: row.lat,
+            lng: row.lng,
+        },
+    ))
 }
 
 pub async fn search(pool: &PgPool, req: SearchTripsQuery) -> Result<Vec<Trip>, Error> {
@@ -278,6 +285,10 @@ pub async fn search(pool: &PgPool, req: SearchTripsQuery) -> Result<Vec<Trip>, E
         WITH ongoing AS (
             SELECT * FROM trips
             WHERE trip_end_time IS NULL AND car_full = FALSE
+            AND ST_Distance(
+                end_geom,
+                ST_SetSRID(ST_MakePoint($5, $4), 4326)::geography
+              ) <= $7
         ),
         near_pickup_ids AS (
             SELECT DISTINCT t.id
@@ -296,10 +307,6 @@ pub async fn search(pool: &PgPool, req: SearchTripsQuery) -> Result<Vec<Trip>, E
         )
         SELECT *
         FROM candidates
-        WHERE ST_Distance(
-                end_geom,
-                ST_SetSRID(ST_MakePoint($5, $4), 4326)::geography
-              ) <= $7
         ORDER BY ST_Distance(
                     end_geom,
                     ST_SetSRID(ST_MakePoint($5, $4), 4326)::geography

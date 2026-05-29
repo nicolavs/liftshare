@@ -1,10 +1,13 @@
+use crate::errors::Error;
 use crate::{models::trips_api, repositories::trip_repo, state::SharedState};
 use axum::routing::{get, patch, post};
 use axum::{
-    Json, Router, extract::{Query, State, Path}, http::StatusCode, response::IntoResponse,
+    Json, Router,
+    extract::{Path, Query, State},
+    http::StatusCode,
+    response::IntoResponse,
 };
 use uuid::Uuid;
-use crate::errors::Error;
 
 pub fn create_route() -> Router<SharedState> {
     Router::new()
@@ -132,12 +135,13 @@ pub async fn join_trip(
     State(state): State<SharedState>,
     Json(req): Json<trips_api::JoinTripRequest>,
 ) -> Result<impl IntoResponse, Error> {
-    let eta = trip_repo::join(&state.db_pool, req).await?;
+    let (eta, pickup_latlng) = trip_repo::join(&state.db_pool, req).await?;
 
     Ok((
         StatusCode::CREATED,
         Json(trips_api::JoinTripResponse {
             eta: Some(eta),
+            pickup_location: Some(pickup_latlng),
             success: true,
         }),
     ))

@@ -5,6 +5,12 @@ use uuid::Uuid;
 
 use crate::models::trips_db::Trip;
 
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct LatLng {
+    pub lat: f64,
+    pub lng: f64,
+}
+
 // POST /trip/create
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct CreateTripRequest {
@@ -88,6 +94,7 @@ pub struct JoinTripRequest {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct JoinTripResponse {
     pub eta: Option<DateTime<Utc>>,
+    pub pickup_location: Option<LatLng>,
     pub success: bool,
 }
 
